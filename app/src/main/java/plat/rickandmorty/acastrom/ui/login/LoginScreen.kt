@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import plat.rickandmorty.acastrom.R
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun LoginScreen(
@@ -39,7 +40,8 @@ fun LoginScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.rickandmorty),
-                contentDescription = null
+                contentDescription = null,
+                modifier = Modifier.height(140.dp)
             )
             Button(
                 onClick = onEmpezarClick,
