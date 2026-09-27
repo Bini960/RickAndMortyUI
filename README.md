@@ -1,13 +1,12 @@
 # RickAndMorty
 
-App de Android en Kotlin con Jetpack Compose, hecha para el curso de Programación de Plataformas Móviles. Tiene una pantalla de login, un listado de personajes de Rick & Morty y el detalle de cada personaje.
-
-El código de cada laboratorio está en su propia rama.
+App de Android en Kotlin con Jetpack Compose, desarrollada para el curso de Programación de Plataformas Móviles. Incluye una pantalla de login, un listado de personajes de Rick & Morty con su pantalla de detalle, un listado de locations con su pantalla de detalle y una pantalla de perfil con cierre de sesión. Las secciones principales se recorren mediante una barra de navegación inferior.
 
 ## Estructura
 
 - `main` – proyecto base generado por Android Studio
 - `laboratorio7` – login, listado de personajes y detalle de personaje, con navegación type-safe (`@Serializable`) y carga de imágenes con Coil
+- - `laboratorio8` – barra de navegación inferior (`NavigationBar`) con las secciones Characters, Locations y Profile, grafos de navegación anidados para personajes y locations, pantalla de detalle de cada location y cierre de sesión que vacía el back stack
 
 ## Herramientas
 
