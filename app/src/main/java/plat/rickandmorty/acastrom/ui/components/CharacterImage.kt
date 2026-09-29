@@ -23,3 +23,4 @@ fun CharacterImage(
             .background(MaterialTheme.colorScheme.surfaceVariant)
     )
 }
+

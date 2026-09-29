@@ -1,4 +1,4 @@
-package plat.rickandmorty.acastrom.ui.detail
+package plat.rickandmorty.acastrom.ui.characterdetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

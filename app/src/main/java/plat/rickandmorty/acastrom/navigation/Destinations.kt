@@ -6,7 +6,22 @@ import kotlinx.serialization.Serializable
 object LoginDestination
 
 @Serializable
+object CharactersGraph
+
+@Serializable
 object CharacterListDestination
 
 @Serializable
 data class CharacterDetailDestination(val id: Int)
+
+@Serializable
+object LocationsGraph
+
+@Serializable
+object LocationListDestination
+
+@Serializable
+data class LocationDetailDestination(val id: Int)
+
+@Serializable
+object ProfileDestination

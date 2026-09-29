@@ -1,4 +1,4 @@
-package plat.rickandmorty.acastrom.ui.characters
+package plat.rickandmorty.acastrom.ui.characterlist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
