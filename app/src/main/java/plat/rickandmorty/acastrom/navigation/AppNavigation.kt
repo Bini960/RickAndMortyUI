@@ -10,7 +10,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import plat.rickandmorty.acastrom.ui.characterdetail.CharacterDetailRoute
 import plat.rickandmorty.acastrom.ui.characterlist.CharacterListRoute
+import plat.rickandmorty.acastrom.ui.locationdetail.LocationDetailRoute
+import plat.rickandmorty.acastrom.ui.locationlist.LocationListRoute
 import plat.rickandmorty.acastrom.ui.login.LoginScreen
+import plat.rickandmorty.acastrom.ui.profile.ProfileRoute
 
 @Composable
 fun AppNavigation() {
@@ -21,6 +24,10 @@ fun AppNavigation() {
         startDestination = LoginDestination
     ) {
         composable<LoginDestination> {
+            val activity = LocalActivity.current
+            BackHandler {
+                activity?.finish()
+            }
             LoginScreen(
                 onEmpezarClick = {
                     navController.navigate(CharactersGraph) {
@@ -50,6 +57,34 @@ fun AppNavigation() {
                     onBackClick = { navController.popBackStack() }
                 )
             }
+        }
+
+        navigation<LocationsGraph>(startDestination = LocationListDestination) {
+            composable<LocationListDestination> {
+                LocationListRoute(
+                    onLocationClick = { id ->
+                        navController.navigate(LocationDetailDestination(id))
+                    }
+                )
+            }
+
+            composable<LocationDetailDestination> { backStackEntry ->
+                val destination: LocationDetailDestination = backStackEntry.toRoute()
+                LocationDetailRoute(
+                    locationId = destination.id,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable<ProfileDestination> {
+            ProfileRoute(
+                onLogoutClick = {
+                    navController.navigate(LoginDestination) {
+                        popUpTo(0)
+                    }
+                }
+            )
         }
     }
 }
