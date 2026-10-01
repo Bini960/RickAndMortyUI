@@ -25,3 +25,9 @@ data class LocationDetailDestination(val id: Int)
 
 @Serializable
 object ProfileDestination
+
+enum class AppTab {
+    Characters,
+    Locations,
+    Profile
+}
