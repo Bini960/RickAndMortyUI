@@ -8,6 +8,7 @@ El código de cada laboratorio está en su propia rama.
 
 - `main` – proyecto base generado por Android Studio
 - `laboratorio7` – login, listado de personajes y detalle de personaje, con navegación type-safe (`@Serializable`) y carga de imágenes con Coil
+- `laboratorio8` – barra de navegación inferior (`NavigationBar`) con las secciones Characters, Locations y Profile; grafos de navegación anidados para Characters y Locations; detalle de location y cierre de sesión que vacía el back stack.
 
 ## Herramientas
 
