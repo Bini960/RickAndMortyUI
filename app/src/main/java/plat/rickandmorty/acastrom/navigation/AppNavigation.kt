@@ -11,8 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -27,28 +29,34 @@ import plat.rickandmorty.acastrom.ui.profile.ProfileRoute
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    var isLoggedIn by rememberSaveable { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.Characters) }
+
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+    val showBottomBar = currentDestination != null &&
+            !currentDestination.hasRoute<LoginDestination>()
+
+    val goToTab: (AppTab) -> Unit = { tab ->
+        selectedTab = tab
+        val graphDestination = when (tab) {
+            AppTab.Characters -> CharactersGraph
+            AppTab.Locations -> LocationsGraph
+            AppTab.Profile -> ProfileDestination
+        }
+        navController.navigate(graphDestination) {
+            popUpTo(0) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            if (isLoggedIn) {
+            if (showBottomBar) {
                 AppBottomBar(
                     selectedTab = selectedTab,
-                    onTabSelected = { tab ->
-                        selectedTab = tab
-                        val graphDestination = when (tab) {
-                            AppTab.Characters -> CharactersGraph
-                            AppTab.Locations -> LocationsGraph
-                            AppTab.Profile -> ProfileDestination
-                        }
-                        navController.navigate(graphDestination) {
-                            popUpTo(0) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                    onTabSelected = goToTab
                 )
             }
         }
@@ -65,7 +73,6 @@ fun AppNavigation() {
                 }
                 LoginScreen(
                     onEmpezarClick = {
-                        isLoggedIn = true
                         selectedTab = AppTab.Characters
                         navController.navigate(CharactersGraph) {
                             popUpTo(LoginDestination) { inclusive = true }
@@ -87,8 +94,8 @@ fun AppNavigation() {
                     )
                 }
 
-                composable<CharacterDetailDestination> { backStackEntry ->
-                    val destination: CharacterDetailDestination = backStackEntry.toRoute()
+                composable<CharacterDetailDestination> { entry ->
+                    val destination: CharacterDetailDestination = entry.toRoute()
                     CharacterDetailRoute(
                         characterId = destination.id,
                         onBackClick = { navController.popBackStack() }
@@ -98,6 +105,9 @@ fun AppNavigation() {
 
             navigation<LocationsGraph>(startDestination = LocationListDestination) {
                 composable<LocationListDestination> {
+                    BackHandler {
+                        goToTab(AppTab.Characters)
+                    }
                     LocationListRoute(
                         onLocationClick = { id ->
                             navController.navigate(LocationDetailDestination(id))
@@ -105,8 +115,8 @@ fun AppNavigation() {
                     )
                 }
 
-                composable<LocationDetailDestination> { backStackEntry ->
-                    val destination: LocationDetailDestination = backStackEntry.toRoute()
+                composable<LocationDetailDestination> { entry ->
+                    val destination: LocationDetailDestination = entry.toRoute()
                     LocationDetailRoute(
                         locationId = destination.id,
                         onBackClick = { navController.popBackStack() }
@@ -115,9 +125,11 @@ fun AppNavigation() {
             }
 
             composable<ProfileDestination> {
+                BackHandler {
+                    goToTab(AppTab.Characters)
+                }
                 ProfileRoute(
                     onLogoutClick = {
-                        isLoggedIn = false
                         navController.navigate(LoginDestination) {
                             popUpTo(0)
                         }
