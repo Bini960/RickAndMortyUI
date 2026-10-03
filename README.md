@@ -6,7 +6,7 @@ App de Android en Kotlin con Jetpack Compose, desarrollada para el curso de Prog
 
 - `main` – proyecto base generado por Android Studio
 - `laboratorio7` – login, listado de personajes y detalle de personaje, con navegación type-safe (`@Serializable`) y carga de imágenes con Coil
-- - `laboratorio8` – barra de navegación inferior (`NavigationBar`) con las secciones Characters, Locations y Profile, grafos de navegación anidados para personajes y locations, pantalla de detalle de cada location y cierre de sesión que vacía el back stack
+- `laboratorio8` – barra de navegación inferior (`NavigationBar`) con las secciones Characters, Locations y Profile; grafos de navegación anidados para Characters y Locations; detalle de location y cierre de sesión que vacía el back stack.
 
 ## Herramientas
 
