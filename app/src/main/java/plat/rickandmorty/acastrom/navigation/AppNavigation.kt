@@ -133,6 +133,8 @@ fun AppNavigation() {
                         navController.navigate(LoginDestination) {
                             popUpTo(0)
                         }
+                        navController.clearBackStack(CharactersGraph)
+                        navController.clearBackStack(LocationsGraph)
                     }
                 )
             }
