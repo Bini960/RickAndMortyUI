@@ -29,7 +29,7 @@ import plat.rickandmorty.acastrom.data.LocationDb
 fun LocationDetailRoute(
     locationId: Int,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
     val locationDb = LocationDb()
     val location = locationDb.getLocationById(locationId)
