@@ -17,44 +17,80 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import plat.rickandmorty.acastrom.data.Character
-import plat.rickandmorty.acastrom.data.CharacterDb
 import plat.rickandmorty.acastrom.ui.components.CharacterImage
+import plat.rickandmorty.acastrom.ui.components.ErrorLayout
+import plat.rickandmorty.acastrom.ui.components.LoadingLayout
+import plat.rickandmorty.acastrom.ui.state.UiAction
+import plat.rickandmorty.acastrom.ui.state.UiState
+import plat.rickandmorty.acastrom.ui.theme.RickAndMortyTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterListRoute(
     onCharacterClick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: CharacterListViewModel = viewModel(factory = CharacterListViewModel.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    CharacterListScreen(
+        uiState = uiState,
+        onAction = viewModel::onAction,
+        onCharacterClick = onCharacterClick,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CharacterListScreen(
+    uiState: UiState<List<Character>>,
+    onAction: (UiAction) -> Unit,
+    onCharacterClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val characterDb = CharacterDb()
-    val characters = characterDb.getAllCharacters()
+    when {
+        uiState.hasError -> ErrorLayout(
+            message = "Error al obtener listado de personajes.",
+            onRetryClick = { onAction(UiAction.RetryClick) },
+            modifier = modifier
+        )
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { Text("Characters") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+        uiState.isLoading -> LoadingLayout(
+            onClick = { onAction(UiAction.LoadingClick) },
+            modifier = modifier
+        )
+
+        else -> Scaffold(
+            modifier = modifier,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Characters") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(characters, key = { it.id }) { character ->
-                CharacterRow(
-                    character = character,
-                    onClick = { onCharacterClick(character.id) }
-                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                items(uiState.data, key = { it.id }) { character ->
+                    CharacterRow(
+                        character = character,
+                        onClick = { onCharacterClick(character.id) }
+                    )
+                }
             }
         }
     }
@@ -90,5 +126,46 @@ private fun CharacterRow(
                 style = MaterialTheme.typography.bodySmall
             )
         }
+    }
+}
+
+private val previewCharacters = listOf(
+    Character(1, "Rick Sanchez", "Alive", "Human", "Male", "https://rickandmortyapi.com/api/character/avatar/1.jpeg"),
+    Character(2, "Morty Smith", "Alive", "Human", "Male", "https://rickandmortyapi.com/api/character/avatar/2.jpeg")
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun CharacterListLoadingPreview() {
+    RickAndMortyTheme {
+        CharacterListScreen(
+            uiState = UiState(isLoading = true, data = emptyList()),
+            onAction = {},
+            onCharacterClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CharacterListErrorPreview() {
+    RickAndMortyTheme {
+        CharacterListScreen(
+            uiState = UiState(isLoading = false, data = emptyList(), hasError = true),
+            onAction = {},
+            onCharacterClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CharacterListContentPreview() {
+    RickAndMortyTheme {
+        CharacterListScreen(
+            uiState = UiState(isLoading = false, data = previewCharacters),
+            onAction = {},
+            onCharacterClick = {}
+        )
     }
 }
