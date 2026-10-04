@@ -94,10 +94,8 @@ fun AppNavigation() {
                     )
                 }
 
-                composable<CharacterDetailDestination> { entry ->
-                    val destination: CharacterDetailDestination = entry.toRoute()
+                composable<CharacterDetailDestination> {
                     CharacterDetailRoute(
-                        characterId = destination.id,
                         onBackClick = { navController.popBackStack() }
                     )
                 }
