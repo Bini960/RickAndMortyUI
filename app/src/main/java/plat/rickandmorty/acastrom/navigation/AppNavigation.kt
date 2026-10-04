@@ -17,7 +17,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import plat.rickandmorty.acastrom.ui.characterdetail.CharacterDetailRoute
 import plat.rickandmorty.acastrom.ui.characterlist.CharacterListRoute
 import plat.rickandmorty.acastrom.ui.components.AppBottomBar
@@ -113,10 +112,8 @@ fun AppNavigation() {
                     )
                 }
 
-                composable<LocationDetailDestination> { entry ->
-                    val destination: LocationDetailDestination = entry.toRoute()
+                composable<LocationDetailDestination> {
                     LocationDetailRoute(
-                        locationId = destination.id,
                         onBackClick = { navController.popBackStack() }
                     )
                 }

@@ -14,42 +14,78 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import plat.rickandmorty.acastrom.data.Location
-import plat.rickandmorty.acastrom.data.LocationDb
+import plat.rickandmorty.acastrom.ui.components.ErrorLayout
+import plat.rickandmorty.acastrom.ui.components.LoadingLayout
+import plat.rickandmorty.acastrom.ui.state.UiAction
+import plat.rickandmorty.acastrom.ui.state.UiState
+import plat.rickandmorty.acastrom.ui.theme.RickAndMortyTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationListRoute(
     onLocationClick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LocationListViewModel = viewModel(factory = LocationListViewModel.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LocationListScreen(
+        uiState = uiState,
+        onAction = viewModel::onAction,
+        onLocationClick = onLocationClick,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LocationListScreen(
+    uiState: UiState<List<Location>>,
+    onAction: (UiAction) -> Unit,
+    onLocationClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val locationDb = LocationDb()
-    val locations = locationDb.getAllLocations()
+    when {
+        uiState.hasError -> ErrorLayout(
+            message = "Error al obtener listado de ubicaciones.",
+            onRetryClick = { onAction(UiAction.RetryClick) },
+            modifier = modifier
+        )
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = { Text("Locations") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+        uiState.isLoading -> LoadingLayout(
+            onClick = { onAction(UiAction.LoadingClick) },
+            modifier = modifier
+        )
+
+        else -> Scaffold(
+            modifier = modifier,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Locations") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(locations, key = { it.id }) { location ->
-                LocationRow(
-                    location = location,
-                    onClick = { onLocationClick(location.id) }
-                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                items(uiState.data, key = { it.id }) { location ->
+                    LocationRow(
+                        location = location,
+                        onClick = { onLocationClick(location.id) }
+                    )
+                }
             }
         }
     }
@@ -68,5 +104,46 @@ private fun LocationRow(
     ) {
         Text(text = location.name, style = MaterialTheme.typography.titleMedium)
         Text(text = location.type, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+private val previewLocations = listOf(
+    Location(1, "Earth (C-137)", "Planet", "Dimension C-137"),
+    Location(2, "Abadango", "Cluster", "unknown")
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun LocationListLoadingPreview() {
+    RickAndMortyTheme {
+        LocationListScreen(
+            uiState = UiState(isLoading = true, data = emptyList()),
+            onAction = {},
+            onLocationClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LocationListErrorPreview() {
+    RickAndMortyTheme {
+        LocationListScreen(
+            uiState = UiState(isLoading = false, data = emptyList(), hasError = true),
+            onAction = {},
+            onLocationClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LocationListContentPreview() {
+    RickAndMortyTheme {
+        LocationListScreen(
+            uiState = UiState(isLoading = false, data = previewLocations),
+            onAction = {},
+            onLocationClick = {}
+        )
     }
 }
