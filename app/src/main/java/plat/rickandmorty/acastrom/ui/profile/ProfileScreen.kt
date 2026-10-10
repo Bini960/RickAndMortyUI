@@ -18,13 +18,37 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import plat.rickandmorty.acastrom.ui.theme.RickAndMortyTheme
+
+@Composable
+fun ProfileRoute(
+    onLoggedOut: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
+) {
+    val uiState = viewModel.uiState
+
+    LaunchedEffect(uiState.isLoggedOut) {
+        if (uiState.isLoggedOut) onLoggedOut()
+    }
+
+    ProfileScreen(
+        uiState = uiState,
+        onLogoutClick = viewModel::onLogoutClick,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileRoute(
+fun ProfileScreen(
+    uiState: ProfileUiState,
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,11 +81,13 @@ fun ProfileRoute(
                     .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     .padding(16.dp)
             )
-            Text(
-                text = "Nombre: Andrés Castro Morales",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 24.dp)
-            )
+            uiState.name?.let { name ->
+                Text(
+                    text = "Nombre: $name",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 24.dp)
+                )
+            }
             Text(
                 text = "Carné: 25039",
                 style = MaterialTheme.typography.bodyLarge,
@@ -69,10 +95,30 @@ fun ProfileRoute(
             )
             OutlinedButton(
                 onClick = onLogoutClick,
+                enabled = !uiState.isLoggingOut,
                 modifier = Modifier.padding(top = 32.dp)
             ) {
                 Text("Cerrar sesión")
             }
+            if (uiState.hasError) {
+                Text(
+                    text = "No se pudo cerrar la sesión. Intenta de nuevo.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileScreenPreview() {
+    RickAndMortyTheme {
+        ProfileScreen(
+            uiState = ProfileUiState(name = "Ana"),
+            onLogoutClick = {}
+        )
     }
 }

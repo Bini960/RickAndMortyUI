@@ -145,7 +145,7 @@ fun AppNavigation() {
                     goToTab(AppTab.Characters)
                 }
                 ProfileRoute(
-                    onLogoutClick = {
+                    onLoggedOut = {
                         navController.navigate(LoginDestination) {
                             popUpTo(0)
                         }
