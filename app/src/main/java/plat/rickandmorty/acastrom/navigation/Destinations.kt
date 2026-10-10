@@ -3,6 +3,9 @@ package plat.rickandmorty.acastrom.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
+object StartupDestination
+
+@Serializable
 object LoginDestination
 
 @Serializable

@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,6 +25,7 @@ import plat.rickandmorty.acastrom.ui.locationdetail.LocationDetailRoute
 import plat.rickandmorty.acastrom.ui.locationlist.LocationListRoute
 import plat.rickandmorty.acastrom.ui.login.LoginRoute
 import plat.rickandmorty.acastrom.ui.profile.ProfileRoute
+import plat.rickandmorty.acastrom.ui.startup.StartupRoute
 
 @Composable
 fun AppNavigation() {
@@ -32,8 +34,11 @@ fun AppNavigation() {
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
-    val showBottomBar = currentDestination != null &&
-            !currentDestination.hasRoute<LoginDestination>()
+    val showBottomBar = currentDestination?.hierarchy?.any {
+        it.hasRoute<CharactersGraph>() ||
+                it.hasRoute<LocationsGraph>() ||
+                it.hasRoute<ProfileDestination>()
+    } == true
 
     val goToTab: (AppTab) -> Unit = { tab ->
         selectedTab = tab
@@ -62,9 +67,25 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = LoginDestination,
+            startDestination = StartupDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable<StartupDestination> {
+                StartupRoute(
+                    onLoggedIn = {
+                        selectedTab = AppTab.Characters
+                        navController.navigate(CharactersGraph) {
+                            popUpTo(StartupDestination) { inclusive = true }
+                        }
+                    },
+                    onLoggedOut = {
+                        navController.navigate(LoginDestination) {
+                            popUpTo(StartupDestination) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable<LoginDestination> {
                 val activity = LocalActivity.current
                 BackHandler {
