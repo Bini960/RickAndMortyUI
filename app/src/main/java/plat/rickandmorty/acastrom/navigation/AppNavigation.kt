@@ -22,7 +22,7 @@ import plat.rickandmorty.acastrom.ui.characterlist.CharacterListRoute
 import plat.rickandmorty.acastrom.ui.components.AppBottomBar
 import plat.rickandmorty.acastrom.ui.locationdetail.LocationDetailRoute
 import plat.rickandmorty.acastrom.ui.locationlist.LocationListRoute
-import plat.rickandmorty.acastrom.ui.login.LoginScreen
+import plat.rickandmorty.acastrom.ui.login.LoginRoute
 import plat.rickandmorty.acastrom.ui.profile.ProfileRoute
 
 @Composable
@@ -70,8 +70,8 @@ fun AppNavigation() {
                 BackHandler {
                     activity?.finish()
                 }
-                LoginScreen(
-                    onEmpezarClick = {
+                LoginRoute(
+                    onLoginSuccess = {
                         selectedTab = AppTab.Characters
                         navController.navigate(CharactersGraph) {
                             popUpTo(LoginDestination) { inclusive = true }
