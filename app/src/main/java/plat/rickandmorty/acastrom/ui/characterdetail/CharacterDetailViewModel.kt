@@ -3,6 +3,7 @@ package plat.rickandmorty.acastrom.ui.characterdetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -12,14 +13,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import plat.rickandmorty.acastrom.RickAndMortyApplication
 import plat.rickandmorty.acastrom.data.Character
 import plat.rickandmorty.acastrom.data.CharacterRepository
 import plat.rickandmorty.acastrom.navigation.CharacterDetailDestination
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
-import kotlin.coroutines.cancellation.CancellationException
 
 class CharacterDetailViewModel(
     savedStateHandle: SavedStateHandle,
@@ -48,20 +50,17 @@ class CharacterDetailViewModel(
         loadJob?.cancel()
         _uiState.update { it.copy(isLoading = true, hasError = false) }
         loadJob = viewModelScope.launch {
-            try {
-                val character = repository.getCharacterById(characterId)
-                _uiState.update {
-                    if (character == null) {
-                        it.copy(isLoading = false, hasError = true)
-                    } else {
-                        it.copy(isLoading = false, data = character)
+            repository.observeCharacterById(characterId)
+                .catch { _uiState.update { state -> state.copy(isLoading = false, hasError = true) } }
+                .collect { character ->
+                    _uiState.update {
+                        if (character == null) {
+                            it.copy(isLoading = false, hasError = true)
+                        } else {
+                            it.copy(isLoading = false, hasError = false, data = character)
+                        }
                     }
                 }
-            } catch (exception: CancellationException) {
-                throw exception
-            } catch (exception: Exception) {
-                _uiState.update { it.copy(isLoading = false, hasError = true) }
-            }
         }
     }
 
@@ -74,9 +73,10 @@ class CharacterDetailViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val application = this[APPLICATION_KEY] as RickAndMortyApplication
                 CharacterDetailViewModel(
                     savedStateHandle = createSavedStateHandle(),
-                    repository = CharacterRepository()
+                    repository = application.container.characterRepository
                 )
             }
         }

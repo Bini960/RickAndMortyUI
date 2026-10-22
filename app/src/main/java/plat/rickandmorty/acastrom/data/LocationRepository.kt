@@ -1,19 +1,26 @@
 package plat.rickandmorty.acastrom.data
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import plat.rickandmorty.acastrom.data.local.dao.LocationDao
+import plat.rickandmorty.acastrom.data.local.mapper.toModel
 
 class LocationRepository(
-    private val locationDb: LocationDb = LocationDb()
+    private val locationDao: LocationDao
 ) {
 
-    suspend fun getLocations(): List<Location> {
-        delay(LIST_LATENCY_MILLIS)
-        return locationDb.getAllLocations()
+    fun observeLocations(): Flow<List<Location>> {
+        return locationDao.observeAll()
+            .map { entities -> entities.map { it.toModel() } }
+            .onStart { delay(LIST_LATENCY_MILLIS) }
     }
 
-    suspend fun getLocationById(id: Int): Location? {
-        delay(DETAIL_LATENCY_MILLIS)
-        return locationDb.getAllLocations().firstOrNull { it.id == id }
+    fun observeLocationById(id: Int): Flow<Location?> {
+        return locationDao.observeById(id)
+            .map { entity -> entity?.toModel() }
+            .onStart { delay(DETAIL_LATENCY_MILLIS) }
     }
 
     private companion object {

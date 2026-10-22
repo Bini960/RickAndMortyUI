@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room3.Room
 import plat.rickandmorty.acastrom.data.CharacterDb
+import plat.rickandmorty.acastrom.data.CharacterRepository
 import plat.rickandmorty.acastrom.data.LocationDb
+import plat.rickandmorty.acastrom.data.LocationRepository
 import plat.rickandmorty.acastrom.data.SessionRepository
 import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.local.AppDatabase
@@ -32,6 +34,14 @@ class AppContainer(context: Context) {
             characterDb = CharacterDb(),
             locationDb = LocationDb()
         )
+    }
+
+    val characterRepository: CharacterRepository by lazy {
+        CharacterRepository(database.characterDao())
+    }
+
+    val locationRepository: LocationRepository by lazy {
+        LocationRepository(database.locationDao())
     }
 
     private companion object {

@@ -3,6 +3,7 @@ package plat.rickandmorty.acastrom.ui.locationdetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -12,14 +13,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import plat.rickandmorty.acastrom.RickAndMortyApplication
 import plat.rickandmorty.acastrom.data.Location
 import plat.rickandmorty.acastrom.data.LocationRepository
 import plat.rickandmorty.acastrom.navigation.LocationDetailDestination
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
-import kotlin.coroutines.cancellation.CancellationException
 
 class LocationDetailViewModel(
     savedStateHandle: SavedStateHandle,
@@ -48,20 +50,17 @@ class LocationDetailViewModel(
         loadJob?.cancel()
         _uiState.update { it.copy(isLoading = true, hasError = false) }
         loadJob = viewModelScope.launch {
-            try {
-                val location = repository.getLocationById(locationId)
-                _uiState.update {
-                    if (location == null) {
-                        it.copy(isLoading = false, hasError = true)
-                    } else {
-                        it.copy(isLoading = false, data = location)
+            repository.observeLocationById(locationId)
+                .catch { _uiState.update { state -> state.copy(isLoading = false, hasError = true) } }
+                .collect { location ->
+                    _uiState.update {
+                        if (location == null) {
+                            it.copy(isLoading = false, hasError = true)
+                        } else {
+                            it.copy(isLoading = false, hasError = false, data = location)
+                        }
                     }
                 }
-            } catch (exception: CancellationException) {
-                throw exception
-            } catch (exception: Exception) {
-                _uiState.update { it.copy(isLoading = false, hasError = true) }
-            }
         }
     }
 
@@ -74,9 +73,10 @@ class LocationDetailViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val application = this[APPLICATION_KEY] as RickAndMortyApplication
                 LocationDetailViewModel(
                     savedStateHandle = createSavedStateHandle(),
-                    repository = LocationRepository()
+                    repository = application.container.locationRepository
                 )
             }
         }
