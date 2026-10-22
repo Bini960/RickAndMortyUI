@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
 import plat.rickandmorty.acastrom.data.SessionRepository
-import java.io.IOException
+import plat.rickandmorty.acastrom.data.SyncRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 data class ProfileUiState(
     val name: String? = null,
@@ -23,7 +24,8 @@ data class ProfileUiState(
 )
 
 class ProfileViewModel(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val syncRepository: SyncRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ProfileUiState())
@@ -43,9 +45,12 @@ class ProfileViewModel(
         uiState = current.copy(isLoggingOut = true, hasError = false)
         viewModelScope.launch {
             uiState = try {
+                syncRepository.clearAll()
                 sessionRepository.clearUserName()
                 uiState.copy(isLoggingOut = false, isLoggedOut = true)
-            } catch (exception: IOException) {
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
                 uiState.copy(isLoggingOut = false, hasError = true)
             }
         }
@@ -55,7 +60,10 @@ class ProfileViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[APPLICATION_KEY] as RickAndMortyApplication
-                ProfileViewModel(application.container.sessionRepository)
+                ProfileViewModel(
+                    sessionRepository = application.container.sessionRepository,
+                    syncRepository = application.container.syncRepository
+                )
             }
         }
     }

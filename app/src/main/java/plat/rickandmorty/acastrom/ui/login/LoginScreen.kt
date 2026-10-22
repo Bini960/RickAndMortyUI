@@ -3,17 +3,22 @@ package plat.rickandmorty.acastrom.ui.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -79,12 +84,12 @@ fun LoginScreen(
                 .padding(top = 32.dp)
                 .widthIn(max = FormMaxWidth)
                 .fillMaxWidth(),
-            enabled = !uiState.isSaving,
+            enabled = !uiState.isLoggingIn,
             label = { Text("Nombre") },
             singleLine = true,
             isError = uiState.hasError,
             supportingText = if (uiState.hasError) {
-                { Text("No se pudo guardar el nombre. Intenta de nuevo.") }
+                { Text("No se pudo iniciar sesión. Intenta de nuevo.") }
             } else {
                 null
             },
@@ -102,7 +107,17 @@ fun LoginScreen(
                 .widthIn(max = FormMaxWidth)
                 .fillMaxWidth()
         ) {
-            Text("Iniciar sesión")
+            if (uiState.isLoggingIn) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    color = LocalContentColor.current,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("Sincronizando…")
+            } else {
+                Text("Iniciar sesión")
+            }
         }
     }
 }
@@ -113,6 +128,18 @@ private fun LoginScreenPreview() {
     RickAndMortyTheme {
         LoginScreen(
             uiState = LoginUiState(name = "Ana"),
+            onNameChange = {},
+            onLoginClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LoginScreenSyncingPreview() {
+    RickAndMortyTheme {
+        LoginScreen(
+            uiState = LoginUiState(name = "Ana", isLoggingIn = true),
             onNameChange = {},
             onLoginClick = {}
         )

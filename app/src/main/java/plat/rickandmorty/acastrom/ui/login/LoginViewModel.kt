@@ -12,22 +12,24 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
 import plat.rickandmorty.acastrom.data.SessionRepository
-import java.io.IOException
+import plat.rickandmorty.acastrom.data.SyncRepository
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val MAX_NAME_LENGTH = 30
 
 data class LoginUiState(
     val name: String = "",
-    val isSaving: Boolean = false,
+    val isLoggingIn: Boolean = false,
     val hasError: Boolean = false,
     val isLoggedIn: Boolean = false
 ) {
     val canLogin: Boolean
-        get() = name.isNotBlank() && !isSaving && !isLoggedIn
+        get() = name.isNotBlank() && !isLoggingIn && !isLoggedIn
 }
 
 class LoginViewModel(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val syncRepository: SyncRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
@@ -43,13 +45,16 @@ class LoginViewModel(
     fun onLoginClick() {
         val current = uiState
         if (!current.canLogin) return
-        uiState = current.copy(isSaving = true, hasError = false)
+        uiState = current.copy(isLoggingIn = true, hasError = false)
         viewModelScope.launch {
             uiState = try {
+                syncRepository.syncIfNeeded()
                 sessionRepository.saveUserName(current.name)
-                uiState.copy(isSaving = false, isLoggedIn = true)
-            } catch (exception: IOException) {
-                uiState.copy(isSaving = false, hasError = true)
+                uiState.copy(isLoggingIn = false, isLoggedIn = true)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                uiState.copy(isLoggingIn = false, hasError = true)
             }
         }
     }
@@ -58,7 +63,10 @@ class LoginViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[APPLICATION_KEY] as RickAndMortyApplication
-                LoginViewModel(application.container.sessionRepository)
+                LoginViewModel(
+                    sessionRepository = application.container.sessionRepository,
+                    syncRepository = application.container.syncRepository
+                )
             }
         }
     }
