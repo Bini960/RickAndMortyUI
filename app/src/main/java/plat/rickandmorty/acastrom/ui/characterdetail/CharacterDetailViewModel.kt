@@ -46,6 +46,13 @@ class CharacterDetailViewModel(
         }
     }
 
+    fun onFavoriteClick() {
+        val character = _uiState.value.data ?: return
+        viewModelScope.launch {
+            repository.updateFavorite(character.id, !character.isFavorite)
+        }
+    }
+
     private fun loadCharacter() {
         loadJob?.cancel()
         _uiState.update { it.copy(isLoading = true, hasError = false) }

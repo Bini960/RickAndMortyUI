@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import plat.rickandmorty.acastrom.data.Character
 import plat.rickandmorty.acastrom.ui.components.CharacterImage
 import plat.rickandmorty.acastrom.ui.components.ErrorLayout
+import plat.rickandmorty.acastrom.ui.components.FavoriteButton
 import plat.rickandmorty.acastrom.ui.components.LoadingLayout
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
@@ -48,6 +49,7 @@ fun CharacterDetailRoute(
         uiState = uiState,
         onAction = viewModel::onAction,
         onBackClick = onBackClick,
+        onFavoriteClick = viewModel::onFavoriteClick,
         modifier = modifier
     )
 }
@@ -58,6 +60,7 @@ fun CharacterDetailScreen(
     uiState: UiState<Character?>,
     onAction: (UiAction) -> Unit,
     onBackClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val character = uiState.data
@@ -87,10 +90,17 @@ fun CharacterDetailScreen(
                             )
                         }
                     },
+                    actions = {
+                        FavoriteButton(
+                            isFavorite = character.isFavorite,
+                            onClick = onFavoriteClick
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
             }
@@ -153,7 +163,8 @@ private fun CharacterDetailLoadingPreview() {
         CharacterDetailScreen(
             uiState = UiState(isLoading = true, data = null),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }
@@ -165,7 +176,8 @@ private fun CharacterDetailErrorPreview() {
         CharacterDetailScreen(
             uiState = UiState(isLoading = false, data = null, hasError = true),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }
@@ -177,7 +189,8 @@ private fun CharacterDetailContentPreview() {
         CharacterDetailScreen(
             uiState = UiState(isLoading = false, data = previewCharacter),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }

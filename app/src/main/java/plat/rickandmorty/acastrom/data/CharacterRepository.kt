@@ -23,6 +23,10 @@ class CharacterRepository(
             .onStart { delay(DETAIL_LATENCY_MILLIS) }
     }
 
+    suspend fun updateFavorite(id: Int, isFavorite: Boolean) {
+        characterDao.updateFavorite(id, isFavorite)
+    }
+
     private companion object {
         const val LIST_LATENCY_MILLIS = 4_000L
         const val DETAIL_LATENCY_MILLIS = 2_000L
