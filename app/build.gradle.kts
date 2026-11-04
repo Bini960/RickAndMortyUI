@@ -67,4 +67,5 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.room3.runtime)
     ksp(libs.room3.compiler)
+    implementation(libs.bundles.ktor)
 }
