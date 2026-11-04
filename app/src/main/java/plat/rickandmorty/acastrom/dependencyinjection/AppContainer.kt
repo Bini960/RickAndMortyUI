@@ -6,12 +6,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room3.Room
 import plat.rickandmorty.acastrom.data.CharacterDb
-import plat.rickandmorty.acastrom.data.CharacterRepository
 import plat.rickandmorty.acastrom.data.LocationDb
-import plat.rickandmorty.acastrom.data.LocationRepository
-import plat.rickandmorty.acastrom.data.SessionRepository
 import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.local.AppDatabase
+import plat.rickandmorty.acastrom.data.repository.CharacterRepository
+import plat.rickandmorty.acastrom.data.repository.CharacterRepositoryImpl
+import plat.rickandmorty.acastrom.data.repository.LocationRepository
+import plat.rickandmorty.acastrom.data.repository.LocationRepositoryImpl
+import plat.rickandmorty.acastrom.data.repository.SessionRepository
+import plat.rickandmorty.acastrom.data.repository.SessionRepositoryImpl
 
 private val Context.sessionDataStore: DataStore<Preferences> by preferencesDataStore(name = "session")
 
@@ -25,7 +28,7 @@ class AppContainer(context: Context) {
         ).build()
     }
 
-    val sessionRepository: SessionRepository = SessionRepository(context.sessionDataStore)
+    val sessionRepository: SessionRepository = SessionRepositoryImpl(context.sessionDataStore)
 
     val syncRepository: SyncRepository by lazy {
         SyncRepository(
@@ -37,11 +40,11 @@ class AppContainer(context: Context) {
     }
 
     val characterRepository: CharacterRepository by lazy {
-        CharacterRepository(database.characterDao())
+        CharacterRepositoryImpl(database.characterDao())
     }
 
     val locationRepository: LocationRepository by lazy {
-        LocationRepository(database.locationDao())
+        LocationRepositoryImpl(database.locationDao())
     }
 
     private companion object {

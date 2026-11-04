@@ -1,4 +1,4 @@
-package plat.rickandmorty.acastrom.data
+package plat.rickandmorty.acastrom.data.model
 
 data class Character(
     val id: Int,

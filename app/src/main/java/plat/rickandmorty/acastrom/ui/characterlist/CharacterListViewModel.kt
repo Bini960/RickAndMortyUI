@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.Character
-import plat.rickandmorty.acastrom.data.CharacterRepository
+import plat.rickandmorty.acastrom.data.model.Character
+import plat.rickandmorty.acastrom.data.repository.CharacterRepository
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
 

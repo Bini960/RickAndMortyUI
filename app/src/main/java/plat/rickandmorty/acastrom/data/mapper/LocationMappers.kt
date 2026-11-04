@@ -1,7 +1,7 @@
-package plat.rickandmorty.acastrom.data.local.mapper
+package plat.rickandmorty.acastrom.data.mapper
 
-import plat.rickandmorty.acastrom.data.Location
 import plat.rickandmorty.acastrom.data.local.entity.LocationEntity
+import plat.rickandmorty.acastrom.data.model.Location
 
 fun LocationEntity.toModel(): Location = Location(
     id = id,

@@ -11,8 +11,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.SessionRepository
 import plat.rickandmorty.acastrom.data.SyncRepository
+import plat.rickandmorty.acastrom.data.repository.SessionRepository
 import kotlin.coroutines.cancellation.CancellationException
 
 private const val MAX_NAME_LENGTH = 30

@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.Location
-import plat.rickandmorty.acastrom.data.LocationRepository
+import plat.rickandmorty.acastrom.data.model.Location
+import plat.rickandmorty.acastrom.data.repository.LocationRepository
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
 

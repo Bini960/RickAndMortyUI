@@ -3,7 +3,7 @@ package plat.rickandmorty.acastrom.data
 import kotlinx.coroutines.delay
 import plat.rickandmorty.acastrom.data.local.dao.CharacterDao
 import plat.rickandmorty.acastrom.data.local.dao.LocationDao
-import plat.rickandmorty.acastrom.data.local.mapper.toEntity
+import plat.rickandmorty.acastrom.data.mapper.toEntity
 
 class SyncRepository(
     private val characterDao: CharacterDao,

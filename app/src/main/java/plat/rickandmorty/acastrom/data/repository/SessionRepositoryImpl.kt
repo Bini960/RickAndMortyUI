@@ -1,4 +1,4 @@
-package plat.rickandmorty.acastrom.data
+package plat.rickandmorty.acastrom.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-class SessionRepository(
+class SessionRepositoryImpl(
     private val dataStore: DataStore<Preferences>
-) {
+) : SessionRepository {
 
-    val userName: Flow<String?> = dataStore.data
+    override val userName: Flow<String?> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -26,7 +26,7 @@ class SessionRepository(
             preferences[NAME_KEY]?.takeIf { it.isNotBlank() }
         }
 
-    suspend fun saveUserName(name: String) {
+    override suspend fun saveUserName(name: String) {
         val trimmedName = name.trim()
         require(trimmedName.isNotEmpty()) { "El nombre no puede estar vacío" }
         dataStore.edit { preferences ->
@@ -34,7 +34,7 @@ class SessionRepository(
         }
     }
 
-    suspend fun clearUserName() {
+    override suspend fun clearUserName() {
         dataStore.edit { preferences ->
             preferences.remove(NAME_KEY)
         }

@@ -12,8 +12,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.SessionRepository
 import plat.rickandmorty.acastrom.data.SyncRepository
+import plat.rickandmorty.acastrom.data.repository.SessionRepository
 import kotlin.coroutines.cancellation.CancellationException
 
 data class ProfileUiState(

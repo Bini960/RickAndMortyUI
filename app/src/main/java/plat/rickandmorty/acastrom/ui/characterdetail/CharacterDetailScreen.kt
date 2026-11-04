@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import plat.rickandmorty.acastrom.data.Character
+import plat.rickandmorty.acastrom.data.model.Character
 import plat.rickandmorty.acastrom.ui.components.CharacterImage
 import plat.rickandmorty.acastrom.ui.components.ErrorLayout
 import plat.rickandmorty.acastrom.ui.components.FavoriteButton

@@ -12,8 +12,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.SessionRepository
 import plat.rickandmorty.acastrom.data.SyncRepository
+import plat.rickandmorty.acastrom.data.repository.SessionRepository
 
 sealed interface StartupUiState {
     data object Checking : StartupUiState
