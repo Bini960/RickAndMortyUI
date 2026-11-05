@@ -9,8 +9,11 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
+import plat.rickandmorty.acastrom.data.repository.CharacterRepository
+import plat.rickandmorty.acastrom.data.repository.LocationRepository
 import plat.rickandmorty.acastrom.data.repository.SessionRepository
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -27,7 +30,9 @@ data class LoginUiState(
 }
 
 class LoginViewModel(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val characterRepository: CharacterRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
@@ -46,6 +51,10 @@ class LoginViewModel(
         uiState = current.copy(isLoggingIn = true, hasError = false)
         viewModelScope.launch {
             uiState = try {
+                coroutineScope {
+                    launch { characterRepository.refreshFromApi() }
+                    launch { locationRepository.refreshFromApi() }
+                }
                 sessionRepository.saveUserName(current.name)
                 uiState.copy(isLoggingIn = false, isLoggedIn = true)
             } catch (exception: CancellationException) {
@@ -61,7 +70,9 @@ class LoginViewModel(
             initializer {
                 val application = this[APPLICATION_KEY] as RickAndMortyApplication
                 LoginViewModel(
-                    sessionRepository = application.container.sessionRepository
+                    sessionRepository = application.container.sessionRepository,
+                    characterRepository = application.container.characterRepository,
+                    locationRepository = application.container.locationRepository
                 )
             }
         }

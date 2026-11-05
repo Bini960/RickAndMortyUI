@@ -9,5 +9,9 @@ interface LocationRepository {
 
     fun observeLocationById(id: Int): Flow<Location?>
 
+    suspend fun refreshFromApi()
+
+    suspend fun updateFavorite(id: Int, isFavorite: Boolean)
+
     suspend fun clearLocalData()
 }

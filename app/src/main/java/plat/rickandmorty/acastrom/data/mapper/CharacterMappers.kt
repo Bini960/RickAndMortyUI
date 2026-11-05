@@ -2,6 +2,7 @@ package plat.rickandmorty.acastrom.data.mapper
 
 import plat.rickandmorty.acastrom.data.local.entity.CharacterEntity
 import plat.rickandmorty.acastrom.data.model.Character
+import plat.rickandmorty.acastrom.data.model.CharacterDraft
 import plat.rickandmorty.acastrom.data.remote.dto.CharacterDto
 
 fun CharacterEntity.toModel(): Character = Character(
@@ -14,14 +15,14 @@ fun CharacterEntity.toModel(): Character = Character(
     isFavorite = isFavorite
 )
 
-fun Character.toEntity(): CharacterEntity = CharacterEntity(
-    id = id,
+fun CharacterDraft.toEntity(): CharacterEntity = CharacterEntity(
+    id = 0,
     name = name,
     status = status,
     species = species,
     gender = gender,
     image = image,
-    isFavorite = isFavorite
+    isFavorite = false
 )
 
 fun CharacterDto.toEntity(): CharacterEntity = CharacterEntity(

@@ -89,7 +89,7 @@ fun LoginScreen(
             singleLine = true,
             isError = uiState.hasError,
             supportingText = if (uiState.hasError) {
-                { Text("No se pudo iniciar sesión. Intenta de nuevo.") }
+                { Text("No se pudieron cargar los datos. Verifica tu conexión e intenta de nuevo.") }
             } else {
                 null
             },
