@@ -11,7 +11,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.repository.SessionRepository
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -28,8 +27,7 @@ data class LoginUiState(
 }
 
 class LoginViewModel(
-    private val sessionRepository: SessionRepository,
-    private val syncRepository: SyncRepository
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
@@ -48,7 +46,6 @@ class LoginViewModel(
         uiState = current.copy(isLoggingIn = true, hasError = false)
         viewModelScope.launch {
             uiState = try {
-                syncRepository.syncIfNeeded()
                 sessionRepository.saveUserName(current.name)
                 uiState.copy(isLoggingIn = false, isLoggedIn = true)
             } catch (exception: CancellationException) {
@@ -64,8 +61,7 @@ class LoginViewModel(
             initializer {
                 val application = this[APPLICATION_KEY] as RickAndMortyApplication
                 LoginViewModel(
-                    sessionRepository = application.container.sessionRepository,
-                    syncRepository = application.container.syncRepository
+                    sessionRepository = application.container.sessionRepository
                 )
             }
         }

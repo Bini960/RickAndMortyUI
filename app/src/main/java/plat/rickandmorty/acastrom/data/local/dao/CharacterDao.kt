@@ -1,8 +1,6 @@
 package plat.rickandmorty.acastrom.data.local.dao
 
 import androidx.room3.Dao
-import androidx.room3.Insert
-import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Upsert
@@ -11,9 +9,6 @@ import plat.rickandmorty.acastrom.data.local.entity.CharacterEntity
 
 @Dao
 abstract class CharacterDao {
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insertAll(characters: List<CharacterEntity>)
 
     @Upsert
     abstract suspend fun upsertAll(characters: List<CharacterEntity>)

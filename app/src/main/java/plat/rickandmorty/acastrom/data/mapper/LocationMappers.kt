@@ -11,13 +11,6 @@ fun LocationEntity.toModel(): Location = Location(
     dimension = dimension
 )
 
-fun Location.toEntity(): LocationEntity = LocationEntity(
-    id = id,
-    name = name,
-    type = type,
-    dimension = dimension
-)
-
 fun LocationDto.toEntity(): LocationEntity = LocationEntity(
     id = id,
     name = name,

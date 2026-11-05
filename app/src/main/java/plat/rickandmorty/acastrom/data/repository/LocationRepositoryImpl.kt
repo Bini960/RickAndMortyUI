@@ -25,6 +25,10 @@ class LocationRepositoryImpl(
         return locationDao.observeById(id).map { entity -> entity?.toModel() }
     }
 
+    override suspend fun clearLocalData() {
+        locationDao.deleteAll()
+    }
+
     private suspend fun refreshFromApi() {
         val locations = try {
             locationApi.getLocations()

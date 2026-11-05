@@ -8,4 +8,6 @@ interface LocationRepository {
     fun observeLocations(): Flow<List<Location>>
 
     fun observeLocationById(id: Int): Flow<Location?>
+
+    suspend fun clearLocalData()
 }

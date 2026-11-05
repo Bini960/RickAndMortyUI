@@ -6,9 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room3.Room
 import io.ktor.client.HttpClient
-import plat.rickandmorty.acastrom.data.CharacterDb
-import plat.rickandmorty.acastrom.data.LocationDb
-import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.local.AppDatabase
 import plat.rickandmorty.acastrom.data.remote.HttpClientFactory
 import plat.rickandmorty.acastrom.data.remote.api.CharacterApi
@@ -47,15 +44,6 @@ class AppContainer(context: Context) {
     }
 
     val sessionRepository: SessionRepository = SessionRepositoryImpl(context.sessionDataStore)
-
-    val syncRepository: SyncRepository by lazy {
-        SyncRepository(
-            characterDao = database.characterDao(),
-            locationDao = database.locationDao(),
-            characterDb = CharacterDb(),
-            locationDb = LocationDb()
-        )
-    }
 
     val characterRepository: CharacterRepository by lazy {
         CharacterRepositoryImpl(

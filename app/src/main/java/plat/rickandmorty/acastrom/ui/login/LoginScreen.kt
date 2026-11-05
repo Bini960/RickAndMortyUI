@@ -114,7 +114,7 @@ fun LoginScreen(
                     strokeWidth = 2.dp
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Sincronizando…")
+                Text("Iniciando sesión…")
             } else {
                 Text("Iniciar sesión")
             }
@@ -136,7 +136,7 @@ private fun LoginScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginScreenSyncingPreview() {
+private fun LoginScreenLoggingInPreview() {
     RickAndMortyTheme {
         LoginScreen(
             uiState = LoginUiState(name = "Ana", isLoggingIn = true),

@@ -29,6 +29,10 @@ class CharacterRepositoryImpl(
         characterDao.updateFavorite(id, isFavorite)
     }
 
+    override suspend fun clearLocalData() {
+        characterDao.deleteAll()
+    }
+
     private suspend fun refreshFromApi() {
         val characters = try {
             characterApi.getCharacters()

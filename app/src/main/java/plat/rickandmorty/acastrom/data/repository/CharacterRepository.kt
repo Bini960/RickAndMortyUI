@@ -10,4 +10,6 @@ interface CharacterRepository {
     fun observeCharacterById(id: Int): Flow<Character?>
 
     suspend fun updateFavorite(id: Int, isFavorite: Boolean)
+
+    suspend fun clearLocalData()
 }

@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import plat.rickandmorty.acastrom.RickAndMortyApplication
-import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.repository.SessionRepository
 
 sealed interface StartupUiState {
@@ -22,8 +21,7 @@ sealed interface StartupUiState {
 }
 
 class StartupViewModel(
-    private val sessionRepository: SessionRepository,
-    private val syncRepository: SyncRepository
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     var uiState: StartupUiState by mutableStateOf<StartupUiState>(StartupUiState.Checking)
@@ -31,15 +29,12 @@ class StartupViewModel(
 
     init {
         viewModelScope.launch {
-            uiState = if (hasValidSession()) StartupUiState.LoggedIn else StartupUiState.LoggedOut
+            uiState = if (hasSavedSession()) StartupUiState.LoggedIn else StartupUiState.LoggedOut
         }
     }
 
-    private suspend fun hasValidSession(): Boolean {
-        if (sessionRepository.userName.first() == null) return false
-        if (syncRepository.isSynced()) return true
-        sessionRepository.clearUserName()
-        return false
+    private suspend fun hasSavedSession(): Boolean {
+        return sessionRepository.userName.first() != null
     }
 
     companion object {
@@ -47,8 +42,7 @@ class StartupViewModel(
             initializer {
                 val application = this[APPLICATION_KEY] as RickAndMortyApplication
                 StartupViewModel(
-                    sessionRepository = application.container.sessionRepository,
-                    syncRepository = application.container.syncRepository
+                    sessionRepository = application.container.sessionRepository
                 )
             }
         }
