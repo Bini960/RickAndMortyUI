@@ -58,11 +58,17 @@ class AppContainer(context: Context) {
     }
 
     val characterRepository: CharacterRepository by lazy {
-        CharacterRepositoryImpl(database.characterDao())
+        CharacterRepositoryImpl(
+            characterApi = characterApi,
+            characterDao = database.characterDao()
+        )
     }
 
     val locationRepository: LocationRepository by lazy {
-        LocationRepositoryImpl(database.locationDao())
+        LocationRepositoryImpl(
+            locationApi = locationApi,
+            locationDao = database.locationDao()
+        )
     }
 
     private companion object {

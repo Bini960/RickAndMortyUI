@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 import plat.rickandmorty.acastrom.data.local.entity.LocationEntity
 
@@ -12,6 +13,9 @@ interface LocationDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(locations: List<LocationEntity>)
+
+    @Upsert
+    suspend fun upsertAll(locations: List<LocationEntity>)
 
     @Query("SELECT * FROM locations ORDER BY id")
     fun observeAll(): Flow<List<LocationEntity>>

@@ -4,27 +4,41 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 import plat.rickandmorty.acastrom.data.local.entity.CharacterEntity
 
 @Dao
-interface CharacterDao {
+abstract class CharacterDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAll(characters: List<CharacterEntity>)
+    abstract suspend fun insertAll(characters: List<CharacterEntity>)
+
+    @Upsert
+    abstract suspend fun upsertAll(characters: List<CharacterEntity>)
 
     @Query("SELECT * FROM characters ORDER BY id")
-    fun observeAll(): Flow<List<CharacterEntity>>
+    abstract fun observeAll(): Flow<List<CharacterEntity>>
 
     @Query("SELECT * FROM characters WHERE id = :id")
-    fun observeById(id: Int): Flow<CharacterEntity?>
+    abstract fun observeById(id: Int): Flow<CharacterEntity?>
+
+    @Query("SELECT id FROM characters WHERE is_favorite = 1")
+    abstract suspend fun getFavoriteIds(): List<Int>
 
     @Query("UPDATE characters SET is_favorite = :isFavorite WHERE id = :id")
-    suspend fun updateFavorite(id: Int, isFavorite: Boolean)
+    abstract suspend fun updateFavorite(id: Int, isFavorite: Boolean)
 
     @Query("SELECT COUNT(*) FROM characters")
-    suspend fun count(): Int
+    abstract suspend fun count(): Int
 
     @Query("DELETE FROM characters")
-    suspend fun deleteAll()
+    abstract suspend fun deleteAll()
+
+    @Transaction
+    open suspend fun upsertKeepingFavorites(characters: List<CharacterEntity>) {
+        val favoriteIds = getFavoriteIds().toSet()
+        upsertAll(characters.map { it.copy(isFavorite = it.id in favoriteIds) })
+    }
 }
