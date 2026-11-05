@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import plat.rickandmorty.acastrom.data.model.Location
 import plat.rickandmorty.acastrom.ui.components.ErrorLayout
+import plat.rickandmorty.acastrom.ui.components.FavoriteButton
 import plat.rickandmorty.acastrom.ui.components.LoadingLayout
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
@@ -45,6 +46,7 @@ fun LocationDetailRoute(
         uiState = uiState,
         onAction = viewModel::onAction,
         onBackClick = onBackClick,
+        onFavoriteClick = viewModel::onFavoriteClick,
         modifier = modifier
     )
 }
@@ -55,6 +57,7 @@ fun LocationDetailScreen(
     uiState: UiState<Location?>,
     onAction: (UiAction) -> Unit,
     onBackClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val location = uiState.data
@@ -84,10 +87,17 @@ fun LocationDetailScreen(
                             )
                         }
                     },
+                    actions = {
+                        FavoriteButton(
+                            isFavorite = location.isFavorite,
+                            onClick = onFavoriteClick
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
             }
@@ -143,7 +153,8 @@ private fun LocationDetailLoadingPreview() {
         LocationDetailScreen(
             uiState = UiState(isLoading = true, data = null),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }
@@ -155,7 +166,8 @@ private fun LocationDetailErrorPreview() {
         LocationDetailScreen(
             uiState = UiState(isLoading = false, data = null, hasError = true),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }
@@ -167,7 +179,8 @@ private fun LocationDetailContentPreview() {
         LocationDetailScreen(
             uiState = UiState(isLoading = false, data = previewLocation),
             onAction = {},
-            onBackClick = {}
+            onBackClick = {},
+            onFavoriteClick = {}
         )
     }
 }
