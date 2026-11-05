@@ -5,10 +5,16 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room3.Room
+import io.ktor.client.HttpClient
 import plat.rickandmorty.acastrom.data.CharacterDb
 import plat.rickandmorty.acastrom.data.LocationDb
 import plat.rickandmorty.acastrom.data.SyncRepository
 import plat.rickandmorty.acastrom.data.local.AppDatabase
+import plat.rickandmorty.acastrom.data.remote.HttpClientFactory
+import plat.rickandmorty.acastrom.data.remote.api.CharacterApi
+import plat.rickandmorty.acastrom.data.remote.api.KtorCharacterApi
+import plat.rickandmorty.acastrom.data.remote.api.KtorLocationApi
+import plat.rickandmorty.acastrom.data.remote.api.LocationApi
 import plat.rickandmorty.acastrom.data.repository.CharacterRepository
 import plat.rickandmorty.acastrom.data.repository.CharacterRepositoryImpl
 import plat.rickandmorty.acastrom.data.repository.LocationRepository
@@ -26,6 +32,18 @@ class AppContainer(context: Context) {
             AppDatabase::class.java,
             DATABASE_NAME
         ).build()
+    }
+
+    private val httpClient: HttpClient by lazy {
+        HttpClientFactory.create()
+    }
+
+    private val characterApi: CharacterApi by lazy {
+        KtorCharacterApi(httpClient)
+    }
+
+    private val locationApi: LocationApi by lazy {
+        KtorLocationApi(httpClient)
     }
 
     val sessionRepository: SessionRepository = SessionRepositoryImpl(context.sessionDataStore)
