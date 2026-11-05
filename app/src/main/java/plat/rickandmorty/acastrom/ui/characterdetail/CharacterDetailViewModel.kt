@@ -22,6 +22,7 @@ import plat.rickandmorty.acastrom.data.repository.CharacterRepository
 import plat.rickandmorty.acastrom.navigation.CharacterDetailDestination
 import plat.rickandmorty.acastrom.ui.state.UiAction
 import plat.rickandmorty.acastrom.ui.state.UiState
+import kotlin.coroutines.cancellation.CancellationException
 
 class CharacterDetailViewModel(
     savedStateHandle: SavedStateHandle,
@@ -33,7 +34,11 @@ class CharacterDetailViewModel(
     private val _uiState = MutableStateFlow(UiState<Character?>(data = null))
     val uiState: StateFlow<UiState<Character?>> = _uiState.asStateFlow()
 
+    private val _isDeleted = MutableStateFlow(false)
+    val isDeleted: StateFlow<Boolean> = _isDeleted.asStateFlow()
+
     private var loadJob: Job? = null
+    private var isDeleting = false
 
     init {
         loadCharacter()
@@ -53,6 +58,23 @@ class CharacterDetailViewModel(
         }
     }
 
+    fun onDeleteConfirm() {
+        val character = _uiState.value.data ?: return
+        if (isDeleting) return
+        isDeleting = true
+        viewModelScope.launch {
+            try {
+                repository.deleteCharacter(character.id)
+                _isDeleted.value = true
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                isDeleting = false
+                _uiState.update { it.copy(hasError = true) }
+            }
+        }
+    }
+
     private fun loadCharacter() {
         loadJob?.cancel()
         _uiState.update { it.copy(isLoading = true, hasError = false) }
@@ -61,10 +83,10 @@ class CharacterDetailViewModel(
                 .catch { _uiState.update { state -> state.copy(isLoading = false, hasError = true) } }
                 .collect { character ->
                     _uiState.update {
-                        if (character == null) {
-                            it.copy(isLoading = false, hasError = true)
-                        } else {
-                            it.copy(isLoading = false, hasError = false, data = character)
+                        when {
+                            character != null -> it.copy(isLoading = false, hasError = false, data = character)
+                            isDeleting -> it.copy(isLoading = false)
+                            else -> it.copy(isLoading = false, hasError = true)
                         }
                     }
                 }

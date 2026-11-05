@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import plat.rickandmorty.acastrom.ui.characterdetail.CharacterDetailRoute
+import plat.rickandmorty.acastrom.ui.characterform.CharacterFormRoute
 import plat.rickandmorty.acastrom.ui.characterlist.CharacterListRoute
 import plat.rickandmorty.acastrom.ui.components.AppBottomBar
 import plat.rickandmorty.acastrom.ui.locationdetail.LocationDetailRoute
@@ -110,13 +111,31 @@ fun AppNavigation() {
                     CharacterListRoute(
                         onCharacterClick = { id ->
                             navController.navigate(CharacterDetailDestination(id))
+                        },
+                        onCreateClick = {
+                            navController.navigate(CharacterFormDestination())
                         }
                     )
                 }
 
                 composable<CharacterDetailDestination> {
                     CharacterDetailRoute(
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                        onEditClick = { id ->
+                            navController.navigate(CharacterFormDestination(id))
+                        }
+                    )
+                }
+
+                composable<CharacterFormDestination> {
+                    CharacterFormRoute(
+                        onBackClick = { navController.popBackStack() },
+                        onCreated = { id ->
+                            navController.navigate(CharacterDetailDestination(id)) {
+                                popUpTo<CharacterFormDestination> { inclusive = true }
+                            }
+                        },
+                        onUpdated = { navController.popBackStack() }
                     )
                 }
             }

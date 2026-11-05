@@ -17,6 +17,11 @@ object CharacterListDestination
 @Serializable
 data class CharacterDetailDestination(val id: Int)
 
+const val NEW_CHARACTER_ID = 0
+
+@Serializable
+data class CharacterFormDestination(val id: Int = NEW_CHARACTER_ID)
+
 @Serializable
 object LocationsGraph
 

@@ -11,6 +11,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,10 +21,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,16 +48,24 @@ import plat.rickandmorty.acastrom.ui.theme.RickAndMortyTheme
 @Composable
 fun CharacterDetailRoute(
     onBackClick: () -> Unit,
+    onEditClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CharacterDetailViewModel = viewModel(factory = CharacterDetailViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isDeleted by viewModel.isDeleted.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isDeleted) {
+        if (isDeleted) onBackClick()
+    }
 
     CharacterDetailScreen(
         uiState = uiState,
         onAction = viewModel::onAction,
         onBackClick = onBackClick,
         onFavoriteClick = viewModel::onFavoriteClick,
+        onEditClick = onEditClick,
+        onDeleteConfirm = viewModel::onDeleteConfirm,
         modifier = modifier
     )
 }
@@ -61,9 +77,12 @@ fun CharacterDetailScreen(
     onAction: (UiAction) -> Unit,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onEditClick: (Int) -> Unit,
+    onDeleteConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val character = uiState.data
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     when {
         uiState.hasError -> ErrorLayout(
@@ -77,58 +96,97 @@ fun CharacterDetailScreen(
             modifier = modifier
         )
 
-        character != null -> Scaffold(
-            modifier = modifier,
-            topBar = {
-                TopAppBar(
-                    title = { Text("Characters details") },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver"
+        character != null -> {
+            Scaffold(
+                modifier = modifier,
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Characters details") },
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Volver"
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { onEditClick(character.id) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Editar personaje"
+                                )
+                            }
+                            IconButton(onClick = { showDeleteDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Eliminar personaje"
+                                )
+                            }
+                            FavoriteButton(
+                                isFavorite = character.isFavorite,
+                                onClick = onFavoriteClick
                             )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    )
+                }
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CharacterImage(
+                        imageUrl = character.image,
+                        modifier = Modifier.size(160.dp)
+                    )
+                    Text(
+                        text = character.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+                    )
+                    HorizontalDivider()
+                    DetailRow(label = "Species", value = character.species)
+                    HorizontalDivider()
+                    DetailRow(label = "Status", value = character.status)
+                    HorizontalDivider()
+                    DetailRow(label = "Gender", value = character.gender)
+                    HorizontalDivider()
+                }
+            }
+
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text("Eliminar personaje") },
+                    text = {
+                        Text("Se eliminará a ${character.name} solo en este dispositivo. Esta acción no se puede deshacer.")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteDialog = false
+                                onDeleteConfirm()
+                            }
+                        ) {
+                            Text("Eliminar")
                         }
                     },
-                    actions = {
-                        FavoriteButton(
-                            isFavorite = character.isFavorite,
-                            onClick = onFavoriteClick
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = false }) {
+                            Text("Cancelar")
+                        }
+                    }
                 )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CharacterImage(
-                    imageUrl = character.image,
-                    modifier = Modifier.size(160.dp)
-                )
-                Text(
-                    text = character.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
-                )
-                HorizontalDivider()
-                DetailRow(label = "Species", value = character.species)
-                HorizontalDivider()
-                DetailRow(label = "Status", value = character.status)
-                HorizontalDivider()
-                DetailRow(label = "Gender", value = character.gender)
-                HorizontalDivider()
             }
         }
     }
@@ -164,7 +222,9 @@ private fun CharacterDetailLoadingPreview() {
             uiState = UiState(isLoading = true, data = null),
             onAction = {},
             onBackClick = {},
-            onFavoriteClick = {}
+            onFavoriteClick = {},
+            onEditClick = {},
+            onDeleteConfirm = {}
         )
     }
 }
@@ -177,7 +237,9 @@ private fun CharacterDetailErrorPreview() {
             uiState = UiState(isLoading = false, data = null, hasError = true),
             onAction = {},
             onBackClick = {},
-            onFavoriteClick = {}
+            onFavoriteClick = {},
+            onEditClick = {},
+            onDeleteConfirm = {}
         )
     }
 }
@@ -190,7 +252,9 @@ private fun CharacterDetailContentPreview() {
             uiState = UiState(isLoading = false, data = previewCharacter),
             onAction = {},
             onBackClick = {},
-            onFavoriteClick = {}
+            onFavoriteClick = {},
+            onEditClick = {},
+            onDeleteConfirm = {}
         )
     }
 }

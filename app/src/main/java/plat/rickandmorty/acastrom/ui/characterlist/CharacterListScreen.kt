@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +44,7 @@ import plat.rickandmorty.acastrom.ui.theme.RickAndMortyTheme
 @Composable
 fun CharacterListRoute(
     onCharacterClick: (Int) -> Unit,
+    onCreateClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CharacterListViewModel = viewModel(factory = CharacterListViewModel.Factory)
 ) {
@@ -53,6 +56,7 @@ fun CharacterListRoute(
         onCharacterClick = onCharacterClick,
         onFavoriteClick = viewModel::onFavoriteClick,
         onFavoritesFilterClick = viewModel::onFavoritesFilterClick,
+        onCreateClick = onCreateClick,
         modifier = modifier
     )
 }
@@ -65,6 +69,7 @@ fun CharacterListScreen(
     onCharacterClick: (Int) -> Unit,
     onFavoriteClick: (Character) -> Unit,
     onFavoritesFilterClick: () -> Unit,
+    onCreateClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val content = uiState.data
@@ -83,6 +88,14 @@ fun CharacterListScreen(
 
         else -> Scaffold(
             modifier = modifier,
+            floatingActionButton = {
+                FloatingActionButton(onClick = onCreateClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Crear personaje"
+                    )
+                }
+            },
             topBar = {
                 TopAppBar(
                     title = { Text("Characters") },
@@ -189,7 +202,8 @@ private fun CharacterListLoadingPreview() {
             onAction = {},
             onCharacterClick = {},
             onFavoriteClick = {},
-            onFavoritesFilterClick = {}
+            onFavoritesFilterClick = {},
+            onCreateClick = {}
         )
     }
 }
@@ -203,7 +217,8 @@ private fun CharacterListErrorPreview() {
             onAction = {},
             onCharacterClick = {},
             onFavoriteClick = {},
-            onFavoritesFilterClick = {}
+            onFavoritesFilterClick = {},
+            onCreateClick = {}
         )
     }
 }
@@ -217,7 +232,8 @@ private fun CharacterListContentPreview() {
             onAction = {},
             onCharacterClick = {},
             onFavoriteClick = {},
-            onFavoritesFilterClick = {}
+            onFavoritesFilterClick = {},
+            onCreateClick = {}
         )
     }
 }
@@ -231,7 +247,8 @@ private fun CharacterListEmptyFavoritesPreview() {
             onAction = {},
             onCharacterClick = {},
             onFavoriteClick = {},
-            onFavoritesFilterClick = {}
+            onFavoritesFilterClick = {},
+            onCreateClick = {}
         )
     }
 }
