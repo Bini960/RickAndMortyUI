@@ -12,6 +12,8 @@ import plat.rickandmorty.acastrom.data.remote.api.CharacterApi
 import plat.rickandmorty.acastrom.data.remote.api.KtorCharacterApi
 import plat.rickandmorty.acastrom.data.remote.api.KtorLocationApi
 import plat.rickandmorty.acastrom.data.remote.api.LocationApi
+import plat.rickandmorty.acastrom.data.remote.image.CoilImagePrefetcher
+import plat.rickandmorty.acastrom.data.remote.image.ImagePrefetcher
 import plat.rickandmorty.acastrom.data.repository.CharacterRepository
 import plat.rickandmorty.acastrom.data.repository.CharacterRepositoryImpl
 import plat.rickandmorty.acastrom.data.repository.LocationRepository
@@ -43,12 +45,17 @@ class AppContainer(context: Context) {
         KtorLocationApi(httpClient)
     }
 
+    private val imagePrefetcher: ImagePrefetcher by lazy {
+        CoilImagePrefetcher(context.applicationContext)
+    }
+
     val sessionRepository: SessionRepository = SessionRepositoryImpl(context.sessionDataStore)
 
     val characterRepository: CharacterRepository by lazy {
         CharacterRepositoryImpl(
             characterApi = characterApi,
-            characterDao = database.characterDao()
+            characterDao = database.characterDao(),
+            imagePrefetcher = imagePrefetcher
         )
     }
 

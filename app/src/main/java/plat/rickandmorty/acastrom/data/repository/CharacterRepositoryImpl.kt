@@ -2,16 +2,22 @@ package plat.rickandmorty.acastrom.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withTimeoutOrNull
 import plat.rickandmorty.acastrom.data.local.dao.CharacterDao
 import plat.rickandmorty.acastrom.data.mapper.toEntity
 import plat.rickandmorty.acastrom.data.mapper.toModel
 import plat.rickandmorty.acastrom.data.model.Character
 import plat.rickandmorty.acastrom.data.model.CharacterDraft
 import plat.rickandmorty.acastrom.data.remote.api.CharacterApi
+import plat.rickandmorty.acastrom.data.remote.image.ImagePrefetcher
+import kotlin.coroutines.cancellation.CancellationException
+
+private const val IMAGE_PREFETCH_TIMEOUT_MILLIS = 5_000L
 
 class CharacterRepositoryImpl(
     private val characterApi: CharacterApi,
-    private val characterDao: CharacterDao
+    private val characterDao: CharacterDao,
+    private val imagePrefetcher: ImagePrefetcher
 ) : CharacterRepository {
 
     override fun observeCharacters(): Flow<List<Character>> {
@@ -25,6 +31,7 @@ class CharacterRepositoryImpl(
     override suspend fun refreshFromApi() {
         val characters = characterApi.getCharacters()
         characterDao.insertAll(characters.map { it.toEntity() })
+        prefetchImages(characters.map { it.image }.filter { it.isNotBlank() })
     }
 
     override suspend fun createCharacter(draft: CharacterDraft): Int {
@@ -52,5 +59,15 @@ class CharacterRepositoryImpl(
 
     override suspend fun clearLocalData() {
         characterDao.deleteAll()
+    }
+
+    private suspend fun prefetchImages(urls: List<String>) {
+        try {
+            withTimeoutOrNull(IMAGE_PREFETCH_TIMEOUT_MILLIS) { imagePrefetcher.prefetch(urls) }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            return
+        }
     }
 }
