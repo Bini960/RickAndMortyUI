@@ -8,12 +8,14 @@ fun LocationEntity.toModel(): Location = Location(
     id = id,
     name = name,
     type = type,
-    dimension = dimension
+    dimension = dimension,
+    isFavorite = isFavorite
 )
 
 fun LocationDto.toEntity(): LocationEntity = LocationEntity(
     id = id,
     name = name,
     type = type,
-    dimension = dimension
+    dimension = dimension,
+    isFavorite = false
 )

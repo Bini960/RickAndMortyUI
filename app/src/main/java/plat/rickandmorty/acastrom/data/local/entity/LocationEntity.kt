@@ -1,5 +1,6 @@
 package plat.rickandmorty.acastrom.data.local.entity
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 
@@ -8,5 +9,6 @@ data class LocationEntity(
     @PrimaryKey val id: Int,
     val name: String,
     val type: String,
-    val dimension: String
+    val dimension: String,
+    @ColumnInfo(name = "is_favorite", defaultValue = "0") val isFavorite: Boolean
 )

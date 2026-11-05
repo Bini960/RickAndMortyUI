@@ -1,14 +1,32 @@
 package plat.rickandmorty.acastrom.data.local.dao
 
 import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
+import androidx.room3.Update
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
 import plat.rickandmorty.acastrom.data.local.entity.CharacterEntity
 
 @Dao
 abstract class CharacterDao {
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract suspend fun insertAll(characters: List<CharacterEntity>)
+
+    @Insert
+    abstract suspend fun insert(character: CharacterEntity)
+
+    @Update
+    abstract suspend fun update(character: CharacterEntity)
+
+    @Query("DELETE FROM characters WHERE id = :id")
+    abstract suspend fun deleteById(id: Int)
+
+    @Query("SELECT COALESCE(MAX(id), 0) FROM characters")
+    abstract suspend fun getMaxId(): Int
 
     @Upsert
     abstract suspend fun upsertAll(characters: List<CharacterEntity>)
@@ -30,6 +48,13 @@ abstract class CharacterDao {
 
     @Query("DELETE FROM characters")
     abstract suspend fun deleteAll()
+
+    @Transaction
+    open suspend fun insertWithNextId(character: CharacterEntity): Int {
+        val newId = getMaxId() + 1
+        insert(character.copy(id = newId))
+        return newId
+    }
 
     @Transaction
     open suspend fun upsertKeepingFavorites(characters: List<CharacterEntity>) {

@@ -14,6 +14,16 @@ fun CharacterEntity.toModel(): Character = Character(
     isFavorite = isFavorite
 )
 
+fun Character.toEntity(): CharacterEntity = CharacterEntity(
+    id = id,
+    name = name,
+    status = status,
+    species = species,
+    gender = gender,
+    image = image,
+    isFavorite = isFavorite
+)
+
 fun CharacterDto.toEntity(): CharacterEntity = CharacterEntity(
     id = id,
     name = name,
