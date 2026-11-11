@@ -12,6 +12,15 @@ App de Android en Kotlin con Jetpack Compose, desarrollada para el curso de Prog
 - `laboratorio11` – base de datos local con Room (tablas `characters` y `locations`, con su entidad, DAO y funciones de mapeo); sincronización inicial al iniciar sesión con indicador de carga; listados y detalles que leen Room; personajes favoritos con filtro y vista vacía; cierre de sesión que borra los datos locales.
 - `laboratorio12` – Offline First: los personajes y las locations se obtienen del API de Rick & Morty con Ktor únicamente al iniciar sesión (con precarga de las imágenes) y se guardan en Room, de donde leen todas las pantallas; cliente único en `HttpClientFactory`; repositorios con interfaz e implementación que combinan la API y Room; crear, editar y eliminar personajes de forma local, incluso los que vienen del API; locations favoritas con filtro entre todas, favoritas y no favoritas.
 
+## APK
+
+La versión compilada (debug) de la rama `laboratorio12` se encuentra en `apk/RickAndMorty.apk` y requiere Android 8.0 (API 26) o superior. Para instalarla:
+
+1. Descargar el archivo `apk/RickAndMorty.apk` desde este repositorio.
+2. En un emulador de Android Studio, arrastrar el archivo sobre la ventana del emulador. En un teléfono, copiar el archivo al dispositivo, abrirlo y permitir la instalación desde esa fuente.
+3. Como alternativa, con el dispositivo o emulador conectado, ejecutar `adb install -r apk/RickAndMorty.apk`.
+4. Abrir la aplicación RickAndMorty, escribir un nombre e iniciar sesión. El primer inicio de sesión requiere conexión a internet; después la app funciona sin conexión.
+
 ## Herramientas
 
 - Kotlin
@@ -24,7 +33,6 @@ App de Android en Kotlin con Jetpack Compose, desarrollada para el curso de Prog
 - Room y KSP
 - Ktor Client
 - kotlinx.serialization
-- APK de la app en la carpeta `apk/`.
 
 **Para ejecutar este proyecto:**
 
